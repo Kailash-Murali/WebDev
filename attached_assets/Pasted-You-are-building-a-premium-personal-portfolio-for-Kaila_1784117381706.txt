@@ -1,0 +1,127 @@
+You are building a premium personal portfolio for "Kailash Murali T", student developer at VIT Chennai.
+
+=== TECH STACK ===
+Next.js 14 (App Router) + TypeScript + Tailwind CSS + Framer Motion
+- Use `create-next-app` as base
+- Framer Motion for all animations (page transitions, scroll reveals, loading screen)
+- Tailwind CSS for all styling (no separate CSS files)
+- Google Fonts via next/font: Bebas Neue (display), Inter (body)
+- No UI component libraries (shadcn, MUI, etc.) — build everything from scratch
+
+=== DESIGN PHILOSOPHY ===
+STRICT BLACK AND WHITE ONLY.
+- Dark mode default: bg #0a0a0a, text #f0f0ec
+- Light mode: bg #f0f0ec, text #0a0a0a
+- No colors, gradients, or hues — only varying opacities of black/white
+- Single CSS variable toggle: class "light" on <html>
+
+=== LOADING SCREEN ===
+Full viewport overlay shown for ~2.2s on first load:
+- Background: var(--bg)
+- Center: the text "KM" in Bebas Neue, large (120px), color var(--fg)
+- Below it: a 1px horizontal line that animates width 0% → 100% over 1.8s (ease-in-out)
+- Below the line: counter text "000" → "100" incrementing via JS over 1.8s
+- After 2.2s: the overlay slides UP (translateY 0 → -100%) with a 0.6s ease-in-out exit
+- Framer Motion: use AnimatePresence + motion.div for mount/unmount
+- While loading screen is active, body scroll is locked (overflow: hidden on html)
+
+=== NAVBAR ===
+Fixed. Appears (fade + slide down) only after scrolling past 60px.
+- Backdrop blur: bg rgba(10,10,10,0.8), backdrop-filter blur(14px)
+- Left: "KM" — two letters, left K in var(--fg), right M in var(--muted) — plain text, Bebas Neue 20px
+- Center: nav links — About · Skills · Projects · Resume · Contact — 11px uppercase tracked
+- Right: ☯ toggle button (unicode U+262F, font-size 20px) — a plain circle border button
+  clicking it toggles dark/light mode. NO other toggle button anywhere on page.
+- Mobile: hamburger replaces center links
+
+=== HERO SECTION ===
+Full viewport height. Background: var(--bg).
+Layers (bottom to top):
+
+LAYER 1 — Background marquee watermark (position: absolute, inset 0, z-index 0, opacity 0.07):
+- 5 rows filling full hero height (justify-content: space-around)
+- Alternating direction: rows 1,3,5 scroll LEFT; rows 2,4 scroll RIGHT. Speed: 28s.
+- Text: alternate between italic "Welcome" and upright "வணக்கம்"
+  — "Welcome" must be in italic style (font-style: italic)
+  — "வணக்கம்" in normal upright style
+- Font: Bebas Neue, clamp(3rem, 6vw, 5.5rem)
+- Color: var(--fg), no text-stroke
+
+LAYER 2 — Foreground content (position: relative, z-index 1):
+- A large display text greeting: "Hello, there!" in Bebas Neue
+  font-size: clamp(72px, 12vw, 160px), color: var(--fg)
+  Animate in with Framer Motion: opacity 0→1, y 40→0, delay 2.4s (after loader)
+- Below it: "KAILASH MURALI" in Bebas Neue, clamp(48px, 7vw, 96px), color: var(--muted)
+  letter-spacing: 0.04em
+  Animate in: opacity 0→1, y 30→0, delay 2.6s
+- Below that: "Developer · Quizzer · Creator" — 11px, uppercase, tracked, var(--muted)
+  Animate in: opacity 0→1, delay 2.8s
+- Scroll cue at bottom: 1px vertical line (40px) fading to transparent, breathing animation
+
+=== ABOUT SECTION ===
+Two columns: left = heading, right = text + image.
+- Heading: "WHO I AM" Bebas Neue clamp(48px,7vw,96px)
+- Profile image: ./profile.jpg, clip-path polygon(0 0,100% 0,100% 85%,85% 100%,0 100%)
+  grayscale(100%) default, grayscale(0%) on hover, transition 0.4s
+  Ghost border offset underneath: position absolute, border 1px solid var(--border), same clip-path, offset 16px bottom-right
+- Text: "I'm Kailash Murali T, an avid programmer and student at VIT Chennai.
+  Stack: Python, Java, C/C++, HTML, CSS & JS. Passionate about quizzing with multiple accolades."
+- Framer Motion scroll reveal: each element opacity 0→1, y 40→0, on viewport enter
+
+=== SKILLS SECTION ===
+Background: rgba(var(--fg-rgb), 0.03) — barely tinted
+- Pill tags: bordered, no fill, rounded-full
+- On hover: border → var(--fg), text → var(--fg), subtle inner shadow
+- Skills: Python · Java · C · C++ · HTML · CSS · JavaScript · Quizzing
+- Animate: stagger 0.08s per pill on scroll enter
+
+=== PROJECTS SECTION ===
+Grid: repeat(auto-fill, minmax(300px, 1fr)), gap 24px
+Each card:
+- border 1px solid var(--border), border-radius 12px, bg var(--card)
+- Large number top-right (01, 02, 03) in Bebas Neue, color var(--border)
+- On hover: translateY(-4px), border brightens
+- Card 01 "Portfolio Website":
+  MUST include a visible text link "View Old Portfolio →"
+  href="https://github.com/Kailash-Murali/Portfolio" target="_blank"
+  Styled as underlined small uppercase text
+- Card 02 "Facebook Clone": HTML/CSS/JS tags
+- Card 03 "Image Compression + AI": "Coming soon." tag "?"
+- Framer Motion: stagger 0.1s per card
+
+=== RESUME — TIMELINE ===
+Vertical centered line, dot markers.
+Entries:
+  · 2024–Present: Web Developer @ OSPC, VIT Chennai
+  · 2023–Present: Graduate Student @ VIT Chennai
+Framer Motion: odd entries slide from left, even from right on scroll enter.
+
+=== CONTACT SECTION ===
+Two columns: info (email, LinkedIn, GitHub with inline SVGs) + form
+Form: bottom-border only inputs, inline validation errors (red glow, no popups)
+Submit: mailto: fallback
+
+=== FOOTER ===
+"© 2026 Kailash Murali T  ·  Made with intention"
+11px muted centered
+
+=== CUSTOM CURSOR ===
+- 10px dot (bg var(--fg)) + 36px ring (border 1px solid rgba(fg, 0.45))
+- Ring expands to 56px on hover over interactive elements
+- cursor: none on body
+
+=== SCROLL REVEAL ===
+All sections use Framer Motion useInView hook.
+Default hidden state: opacity 0, y 40. Visible: opacity 1, y 0. Duration 0.7s ease.
+
+=== DARK/LIGHT TOGGLE ===
+Only one toggle: the ☯ button in the navbar.
+Toggles class "light" on <html>. transition: all 0.4s ease on everything.
+
+=== RULES ===
+- Zero color — only black, white, and their opacities
+- The ONLY place ☯ appears is the navbar toggle button
+- No Yin-Yang anywhere else on the page
+- No external icon libraries — use inline SVGs
+- No lorem ipsum
+- Output a complete working Next.js project with all files listed

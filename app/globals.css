@@ -1,0 +1,91 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #0a0a0a;
+  --fg: #f0f0ec;
+  --fg-rgb: 240, 240, 236;
+  --muted: rgba(240, 240, 236, 0.45);
+  --border: rgba(240, 240, 236, 0.15);
+  --card: rgba(240, 240, 236, 0.03);
+}
+
+:root.light {
+  --bg: #f0f0ec;
+  --fg: #0a0a0a;
+  --fg-rgb: 10, 10, 10;
+  --muted: rgba(10, 10, 10, 0.45);
+  --border: rgba(10, 10, 10, 0.15);
+  --card: rgba(10, 10, 10, 0.03);
+}
+
+*,
+*::before,
+*::after {
+  transition: background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-inter), sans-serif;
+  cursor: none;
+  overflow-x: hidden;
+}
+
+::selection {
+  background: var(--fg);
+  color: var(--bg);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 2px;
+}
+
+/* Marquee keyframes */
+@keyframes marquee-left {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+@keyframes marquee-right {
+  from { transform: translateX(-50%); }
+  to   { transform: translateX(0); }
+}
+
+.marquee-left {
+  animation: marquee-left 28s linear infinite;
+  display: flex;
+  white-space: nowrap;
+  width: max-content;
+}
+.marquee-right {
+  animation: marquee-right 28s linear infinite;
+  display: flex;
+  white-space: nowrap;
+  width: max-content;
+}
+
+/* Scroll cue breathing */
+@keyframes breathe {
+  0%, 100% { opacity: 0.2; }
+  50%       { opacity: 0.7; }
+}
+
+/* Loading counter */
+@keyframes loading-line {
+  from { width: 0%; }
+  to   { width: 100%; }
+}
