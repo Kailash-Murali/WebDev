@@ -137,7 +137,7 @@ export default function Experience() {
             marginBottom: 48,
           }}
         >
-          WHERE I&apos;VE BEEN
+          EXPERIENCE
         </h2>
 
         {/* Two-column timeline */}

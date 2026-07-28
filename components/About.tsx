@@ -37,7 +37,7 @@ export default function About() {
           marginBottom: 48,
         }}
       >
-        WHO I AM
+        HELLO THERE!
       </h2>
 
       {/* Two-column grid */}
@@ -98,9 +98,9 @@ export default function About() {
             <strong style={{ color: 'var(--fg)', fontWeight: 600 }}>Bray International</strong>
             {' '}and{' '}
             <strong style={{ color: 'var(--fg)', fontWeight: 600 }}>Ashok Leyland</strong>,
-            led finance for large-scale fests, and serve as Treasurer of the{' '}
-            <strong style={{ color: 'var(--fg)', fontWeight: 600 }}>VITC Quiz Club</strong>.
-            Outside code, I&apos;m a passionate sports enthusiast and quizzer.
+            <strong style={{ color: 'var(--fg)', fontWeight: 600 }}>led finance for large-scale fests</strong>, and have served as {' '}
+            <strong style={{ color: 'var(--fg)', fontWeight: 600 }}>Treasurer of the VITC Quiz Club</strong>.
+            Outside code, I&apos;m a passionate sports enthusiast, quizzer and love cinema.
           </p>
         </div>
       </div>

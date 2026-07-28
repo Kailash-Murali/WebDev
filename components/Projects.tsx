@@ -204,7 +204,7 @@ export default function Projects() {
             marginBottom: 40,
           }}
         >
-          WHAT I&apos;VE BUILT
+          PROJECTS
         </h2>
 
         <div

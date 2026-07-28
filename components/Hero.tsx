@@ -32,10 +32,10 @@ function makeTrack(words: string[]) {
 // All nine bilingual pairs distributed across rows.
 const rowConfigs = [
   { words: ['Welcome', 'வணக்கம்', 'Tamilan', 'தமிழன்'],                          duration: 42, reverse: false },
-  { words: ['Kavigan', 'கலைஞன்', 'Football', 'விளையாட்டு'],                       duration: 36, reverse: true  },
+  { words: ['Kalaignan', 'கலைஞன்', 'Football', 'விளையாட்டு'],                       duration: 36, reverse: true  },
   { words: ['Code', 'கணினி', 'Art', 'கலை', 'Anbu', 'அன்பு'],                     duration: 39, reverse: false },
   { words: ['Porupu', 'பொறுப்பு', 'Sirapu', 'சிறப்பு', 'Welcome', 'வணக்கம்'],    duration: 33, reverse: true  },
-  { words: ['Tamilan', 'தமிழன்', 'Code', 'கணினி', 'Kavigan', 'கலைஞன்'],          duration: 45, reverse: false },
+  { words: ['Tamilan', 'தமிழன்', 'Code', 'கணினி', 'Kalaignan', 'கலைஞன்'],          duration: 45, reverse: false },
   { words: ['Football', 'விளையாட்டு', 'Anbu', 'அன்பு', 'Art', 'கலை'],            duration: 30, reverse: true  },
   { words: ['Sirapu', 'சிறப்பு', 'Porupu', 'பொறுப்பு', 'Welcome', 'வணக்கம்'],    duration: 38, reverse: false },
 ]
@@ -147,33 +147,6 @@ export default function Hero({ loaded }: { loaded: boolean }) {
           </>
         )}
       </div>
-
-      {/* "ROTATE KNOB" hint */}
-      {loaded && (
-        <motion.div
-          style={{
-            position: 'absolute', bottom: 40,
-            left: '50%', transform: 'translateX(-50%)',
-            display: 'flex', alignItems: 'center', gap: 6,
-          }}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 0.6 }}
-          transition={{ delay: 3.4, duration: 0.6 }}
-        >
-          <span style={{ color: 'var(--muted)', fontSize: 13, lineHeight: 1 }}>↺</span>
-          <span
-            style={{
-              fontFamily: 'var(--font-inter)',
-              fontSize: 9,
-              letterSpacing: '0.25em',
-              textTransform: 'uppercase',
-              color: 'var(--muted)',
-            }}
-          >
-            ROTATE KNOB
-          </span>
-        </motion.div>
-      )}
     </section>
   )
 }

@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import Loader from '@/components/Loader'
-import KnobNav from '@/components/KnobNav'
+import PinNav from '@/components/PinNav'
 import Hero from '@/components/Hero'
 import About from '@/components/About'
 import Projects from '@/components/Projects'
@@ -53,6 +53,20 @@ export default function Page() {
   }, [])
 
   useEffect(() => {
+    let lastScroll = 0
+    
+    const onWheel = (e: WheelEvent) => {
+      const now = Date.now()
+      // Throttle scrolling to avoid jumping multiple sections from a single trackpad swipe
+      if (now - lastScroll < 800) return 
+      
+      if (Math.abs(e.deltaY) > 20) {
+        lastScroll = now
+        if (e.deltaY > 0) setActiveIndex(i => Math.min(4, i + 1))
+        else if (e.deltaY < 0) setActiveIndex(i => Math.max(0, i - 1))
+      }
+    }
+
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'ArrowDown' || e.key === 'ArrowRight')
         setActiveIndex(i => Math.min(4, i + 1))
@@ -62,7 +76,11 @@ export default function Page() {
         setActiveIndex(Number(e.key) - 1)
     }
     window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
+    window.addEventListener('wheel', onWheel, { passive: true })
+    return () => {
+      window.removeEventListener('keydown', onKey)
+      window.removeEventListener('wheel', onWheel)
+    }
   }, [])
 
   return (
@@ -71,7 +89,7 @@ export default function Page() {
 
       {loaded && (
         <>
-          <KnobNav activeIndex={activeIndex} goTo={goTo} />
+          <PinNav activeIndex={activeIndex} goTo={goTo} />
 
           {([0, 1, 2, 3, 4] as const).map(i => {
             const diff = i - activeIndex

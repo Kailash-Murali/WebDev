@@ -118,7 +118,7 @@ export default function Contact() {
             marginBottom: 48,
           }}
         >
-          SAY HELLO
+          LET'S CONNECT
         </h2>
 
         <div
