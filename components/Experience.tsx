@@ -36,7 +36,7 @@ const leadership = [
   },
 ]
 
-function Entry({ e }: { e: typeof work[0] }) {
+function Entry({ e }: { e: { date: string; role: string; org: string; detail?: string | null } }) {
   return (
     <div
       style={{
