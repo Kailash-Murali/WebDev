@@ -1,119 +1,177 @@
 'use client'
 
 import { motion } from 'framer-motion'
+import { useTheme } from '@/context/ThemeContext'
 
-// Each marquee row: many copies of the text so it scrolls seamlessly
-const makeRow = (text: string, isItalic: boolean) => {
-  const copies = Array(12).fill(text)
-  return copies.map((t, i) => (
+const roles = ['Developer', 'Quizzer', 'Sports Enthusiast']
+
+// Tamil characters sit in U+0B80–U+0BFF — use italic for all others (English)
+const isEnglish = (w: string) => !/[\u0B80-\u0BFF]/.test(w)
+
+function makeTrack(words: string[]) {
+  // 4 repetitions for seamless -25% loop
+  return Array(4).fill(words).flat().map((w, i) => (
     <span
       key={i}
-      className="font-bebas px-8"
+      className="font-bebas whitespace-nowrap"
       style={{
-        fontStyle: isItalic ? 'italic' : 'normal',
-        fontSize: 'clamp(3rem, 6vw, 5.5rem)',
+        fontSize: 'clamp(3.2rem, 5.5vw, 5.2rem)',
+        fontStyle: isEnglish(w) ? 'italic' : 'normal',
         color: 'var(--fg)',
+        padding: '0 2rem',
+        userSelect: 'none',
+        pointerEvents: 'none',
       }}
     >
-      {t}
+      {w}
     </span>
   ))
 }
 
-// Rows: 1,3,5 → left; 2,4 → right
-// Text alternates Welcome (italic) / வணக்கம் (upright)
-const rows = [
-  { text: 'Welcome', italic: true, dir: 'left' },
-  { text: 'வணக்கம்', italic: false, dir: 'right' },
-  { text: 'Welcome', italic: true, dir: 'left' },
-  { text: 'வணக்கம்', italic: false, dir: 'right' },
-  { text: 'Welcome', italic: true, dir: 'left' },
+// Seven rows — alternating direction, different durations to prevent sync.
+// All nine bilingual pairs distributed across rows.
+const rowConfigs = [
+  { words: ['Welcome', 'வணக்கம்', 'Tamilan', 'தமிழன்'],                          duration: 42, reverse: false },
+  { words: ['Kavigan', 'கலைஞன்', 'Football', 'விளையாட்டு'],                       duration: 36, reverse: true  },
+  { words: ['Code', 'கணினி', 'Art', 'கலை', 'Anbu', 'அன்பு'],                     duration: 39, reverse: false },
+  { words: ['Porupu', 'பொறுப்பு', 'Sirapu', 'சிறப்பு', 'Welcome', 'வணக்கம்'],    duration: 33, reverse: true  },
+  { words: ['Tamilan', 'தமிழன்', 'Code', 'கணினி', 'Kavigan', 'கலைஞன்'],          duration: 45, reverse: false },
+  { words: ['Football', 'விளையாட்டு', 'Anbu', 'அன்பு', 'Art', 'கலை'],            duration: 30, reverse: true  },
+  { words: ['Sirapu', 'சிறப்பு', 'Porupu', 'பொறுப்பு', 'Welcome', 'வணக்கம்'],    duration: 38, reverse: false },
 ]
 
-const fadeUp = (delay: number) => ({
-  initial: { opacity: 0, y: 40 },
-  animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.9, ease: [0.22, 1, 0.36, 1], delay },
-})
-
 export default function Hero({ loaded }: { loaded: boolean }) {
+  const { theme } = useTheme()
+  const mqOpacity = theme === 'light' ? 0.038 : 0.055
+
   return (
     <section
-      id="hero"
-      className="relative w-full overflow-hidden flex flex-col justify-center"
-      style={{ minHeight: '100svh' }}
+      style={{
+        width: '100%', height: '100%',
+        position: 'relative',
+        background: 'var(--bg)',
+        overflow: 'hidden',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+      }}
     >
-      {/* Layer 1 — marquee watermark */}
-      <div
-        className="absolute inset-0 z-0 flex flex-col justify-around overflow-hidden pointer-events-none"
-        style={{ opacity: 0.07 }}
+      {/* Section number */}
+      <span
+        className="font-bebas"
+        style={{
+          position: 'absolute', top: 32, right: 48,
+          fontSize: 11, letterSpacing: '0.2em',
+          color: 'var(--muted)', userSelect: 'none', pointerEvents: 'none',
+        }}
       >
-        {rows.map((row, i) => (
-          <div key={i} className="overflow-hidden">
-            <div className={row.dir === 'left' ? 'marquee-left' : 'marquee-right'}>
-              {makeRow(row.text, row.italic)}
-              {/* Duplicate for seamless loop */}
-              {makeRow(row.text, row.italic)}
-            </div>
+        01 / 05
+      </span>
+
+      {/* Marquee background */}
+      <motion.div
+        style={{
+          position: 'absolute', inset: 0, zIndex: 0,
+          display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '2px',
+          overflow: 'hidden', pointerEvents: 'none',
+        }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: loaded ? mqOpacity : 0 }}
+        transition={{ duration: 1.2, delay: 2.3 }}
+      >
+        {rowConfigs.map((cfg, i) => (
+          <div key={i} style={{ overflow: 'hidden' }}>
+            <motion.div
+              style={{ display: 'flex', whiteSpace: 'nowrap', width: 'max-content', willChange: 'transform' }}
+              animate={{ x: cfg.reverse ? ['-25%', '0%'] : ['0%', '-25%'] }}
+              transition={{ duration: cfg.duration, repeat: Infinity, ease: 'linear' }}
+            >
+              {makeTrack(cfg.words)}
+            </motion.div>
           </div>
         ))}
-      </div>
+      </motion.div>
 
-      {/* Layer 2 — foreground content */}
-      <div className="relative z-10 px-8 md:px-16 lg:px-24 pt-24">
+      {/* Foreground content */}
+      <div style={{ position: 'relative', zIndex: 1, paddingLeft: 'clamp(120px, 12vw, 200px)' }}>
         {loaded && (
           <>
             <motion.h1
-              className="font-bebas leading-none"
-              style={{
-                fontSize: 'clamp(72px, 12vw, 160px)',
-                color: 'var(--fg)',
-              }}
-              {...fadeUp(2.4)}
-            >
-              Hello, there!
-            </motion.h1>
-
-            <motion.p
               className="font-bebas"
               style={{
-                fontSize: 'clamp(48px, 7vw, 96px)',
-                color: 'var(--muted)',
-                letterSpacing: '0.04em',
-                lineHeight: 1,
+                fontSize: 'clamp(80px, 12vw, 160px)',
+                lineHeight: 0.88,
+                letterSpacing: '0.02em',
+                color: 'var(--fg)',
               }}
-              {...fadeUp(2.6)}
+              initial={{ y: 60, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1], delay: 2.5 }}
             >
-              KAILASH MURALI
-            </motion.p>
+              KAILASH MURALI T
+            </motion.h1>
 
-            <motion.p
-              className="mt-4 uppercase tracking-[0.18em]"
-              style={{ fontSize: 11, color: 'var(--muted)' }}
-              {...fadeUp(2.8)}
-            >
-              Developer · Quizzer · Creator
-            </motion.p>
+            <div style={{ display: 'flex', alignItems: 'center', marginTop: 20 }}>
+              {roles.map((role, i) => (
+                <motion.div
+                  key={role}
+                  style={{ display: 'flex', alignItems: 'center' }}
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ duration: 0.6, delay: 2.8 + i * 0.08 }}
+                >
+                  {i > 0 && (
+                    <span
+                      style={{
+                        display: 'inline-block',
+                        width: 1, height: 14,
+                        background: 'var(--divider)',
+                        margin: '0 16px',
+                      }}
+                    />
+                  )}
+                  <span
+                    style={{
+                      fontFamily: 'var(--font-inter)',
+                      fontSize: 12,
+                      letterSpacing: '0.18em',
+                      textTransform: 'uppercase',
+                      color: 'var(--muted)',
+                    }}
+                  >
+                    {role}
+                  </span>
+                </motion.div>
+              ))}
+            </div>
           </>
         )}
       </div>
 
-      {/* Scroll cue */}
+      {/* "ROTATE KNOB" hint */}
       {loaded && (
         <motion.div
-          className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
+          style={{
+            position: 'absolute', bottom: 40,
+            left: '50%', transform: 'translateX(-50%)',
+            display: 'flex', alignItems: 'center', gap: 6,
+          }}
           initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 3.2, duration: 0.6 }}
+          animate={{ opacity: 0.6 }}
+          transition={{ delay: 3.4, duration: 0.6 }}
         >
-          <div
-            className="w-px"
+          <span style={{ color: 'var(--muted)', fontSize: 13, lineHeight: 1 }}>↺</span>
+          <span
             style={{
-              height: 40,
-              background: 'linear-gradient(to bottom, var(--fg), transparent)',
-              animation: 'breathe 2s ease-in-out infinite',
+              fontFamily: 'var(--font-inter)',
+              fontSize: 9,
+              letterSpacing: '0.25em',
+              textTransform: 'uppercase',
+              color: 'var(--muted)',
             }}
-          />
+          >
+            ROTATE KNOB
+          </span>
         </motion.div>
       )}
     </section>

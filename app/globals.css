@@ -5,37 +5,43 @@
 :root {
   --bg: #0a0a0a;
   --fg: #f0f0ec;
-  --fg-rgb: 240, 240, 236;
-  --muted: rgba(240, 240, 236, 0.45);
-  --border: rgba(240, 240, 236, 0.15);
-  --card: rgba(240, 240, 236, 0.03);
+  --muted: rgba(240,240,236,0.35);
+  --border: rgba(240,240,236,0.10);
+  --card: rgba(240,240,236,0.03);
+  --divider: rgba(240,240,236,0.22);
+  --tick-major: rgba(240,240,236,0.6);
+  --tick-minor: rgba(240,240,236,0.16);
+  --cursor-ring: rgba(240,240,236,0.4);
+  --knob-bg: rgba(10,10,10,0.85);
 }
 
-:root.light {
+html.light {
   --bg: #f0f0ec;
   --fg: #0a0a0a;
-  --fg-rgb: 10, 10, 10;
-  --muted: rgba(10, 10, 10, 0.45);
-  --border: rgba(10, 10, 10, 0.15);
-  --card: rgba(10, 10, 10, 0.03);
+  --muted: rgba(10,10,10,0.38);
+  --border: rgba(10,10,10,0.11);
+  --card: rgba(10,10,10,0.03);
+  --divider: rgba(10,10,10,0.22);
+  --tick-major: rgba(10,10,10,0.6);
+  --tick-minor: rgba(10,10,10,0.16);
+  --cursor-ring: rgba(10,10,10,0.4);
+  --knob-bg: rgba(240,240,236,0.85);
 }
 
-*,
-*::before,
-*::after {
-  transition: background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease;
+* {
+  transition: background 0.4s ease, color 0.4s ease, border-color 0.4s ease;
 }
 
-html {
-  scroll-behavior: smooth;
+html, body {
+  overflow: hidden;
+  height: 100%;
 }
 
 body {
-  background-color: var(--bg);
+  background: var(--bg);
   color: var(--fg);
-  font-family: var(--font-inter), sans-serif;
   cursor: none;
-  overflow-x: hidden;
+  font-family: var(--font-inter), sans-serif;
 }
 
 ::selection {
@@ -43,49 +49,28 @@ body {
   color: var(--bg);
 }
 
-/* Scrollbar */
-::-webkit-scrollbar {
-  width: 4px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: var(--border);
-  border-radius: 2px;
-}
+/* Custom thin scrollbar — inner containers only */
+::-webkit-scrollbar { width: 2px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 
-/* Marquee keyframes */
-@keyframes marquee-left {
-  from { transform: translateX(0); }
-  to   { transform: translateX(-50%); }
-}
-@keyframes marquee-right {
-  from { transform: translateX(-50%); }
-  to   { transform: translateX(0); }
-}
-
-.marquee-left {
-  animation: marquee-left 28s linear infinite;
-  display: flex;
-  white-space: nowrap;
-  width: max-content;
-}
-.marquee-right {
-  animation: marquee-right 28s linear infinite;
-  display: flex;
-  white-space: nowrap;
-  width: max-content;
-}
-
-/* Scroll cue breathing */
 @keyframes breathe {
-  0%, 100% { opacity: 0.2; }
-  50%       { opacity: 0.7; }
+  0%, 100% { opacity: 0.15; }
+  50%       { opacity: 0.6; }
 }
 
-/* Loading counter */
-@keyframes loading-line {
+@keyframes loading-bar {
   from { width: 0%; }
   to   { width: 100%; }
+}
+
+@keyframes glow-fade {
+  from { opacity: 0.45; }
+  to   { opacity: 0; }
+}
+
+/* Mobile knob toggle — hidden on desktop */
+.knob-mobile-toggle { display: none; }
+@media (max-width: 768px) {
+  .knob-mobile-toggle { display: flex !important; }
 }

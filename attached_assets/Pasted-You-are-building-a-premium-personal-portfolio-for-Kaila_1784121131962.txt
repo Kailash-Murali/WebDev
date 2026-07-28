@@ -1,0 +1,282 @@
+You are building a premium personal portfolio for "Kailash Murali T".
+
+=== TECH STACK ===
+Next.js 14 (App Router) + TypeScript + Tailwind CSS + Framer Motion
+next/font: Bebas Neue + Inter · No UI libraries · Inline SVGs only
+
+=== DESIGN TOKENS ===
+:root { --bg:#0a0a0a; --fg:#f0f0ec; --muted:rgba(240,240,236,0.35); --border:rgba(240,240,236,0.10); --card:rgba(240,240,236,0.03); }
+html.light { --bg:#f0f0ec; --fg:#0a0a0a; --muted:rgba(10,10,10,0.38); --border:rgba(10,10,10,0.11); --card:rgba(10,10,10,0.03); }
+body { background:var(--bg); color:var(--fg); cursor:none; overflow:hidden; }
+ALL elements: transition background/color/border 0.4s ease.
+
+=== LOADING SCREEN ===
+- Full viewport fixed overlay, bg var(--bg), z-index 2000
+- "KM" Bebas Neue 110px center
+- 1px bar below: width 0 → 100% over 1.8s ease-in-out
+- Counter 000 → 100 over 1.8s
+- At 2.2s: AnimatePresence exit translateY(-100%) 0.6s ease-in-out
+- Lock body overflow during load, restore on exit
+
+=== CORE LAYOUT — STACKED PANELS (no scroll) ===
+The entire page is overflow:hidden on both html and body.
+There is NO scrolling at all. Ever. Not even programmatic scroll.
+
+All 5 sections (Hero, About, Projects, Experience, Contact) are
+position:fixed, inset:0, width:100vw, height:100vh.
+They are layered on top of each other like a physical deck of cards.
+
+STACKING ORDER & TRANSFORMS (initial state):
+Each panel has a z-index based on its position in the deck.
+The ACTIVE panel is always on top (z-index highest).
+Panels BELOW the active panel peek out from behind using a
+subtle scale + translateY offset — like physical cards in a stack.
+
+Panel state machine:
+  · "active"   — z: 50, scale: 1,    y: 0,    opacity: 1
+  · "below-1"  — z: 49, scale: 0.97, y: 12px, opacity: 1     (directly under active)
+  · "below-2"  — z: 48, scale: 0.94, y: 22px, opacity: 0.85
+  · "below-3"  — z: 47, scale: 0.91, y: 30px, opacity: 0.7
+  · "below-4"  — z: 46, scale: 0.88, y: 36px, opacity: 0.55
+  · "exited-up"— z: 45, scale: 1.04, y: -100vh, opacity: 0   (panels already visited, fly off top)
+
+LEAF TURN ANIMATION (Framer Motion):
+When advancing to next section (knob rotated clockwise):
+  1. Active panel animates OUT: scale 1 → 1.04, y 0 → -100vh, opacity 1 → 0
+     duration 0.55s, ease [0.4, 0, 0.2, 1]
+  2. All below panels simultaneously shift up one slot:
+     below-1 → active, below-2 → below-1, etc.
+     duration 0.55s, ease [0.34, 1.2, 0.64, 1] (slight spring for satisfying lift)
+  3. The newly active panel scales from 0.97 → 1.0 with a subtle y 12 → 0
+
+When going BACK (knob rotated counter-clockwise):
+  1. The current active panel drops back to below-1 position
+     scale 1 → 0.97, y 0 → 12px, duration 0.45s
+  2. The previous panel flies in from y: -100vh → 0, scale 1.04 → 1
+     duration 0.55s, ease [0.34, 1.2, 0.64, 1]
+
+Use Framer Motion `motion.div` with `animate` prop driven by JS state.
+Use `useReducer` or `useState` to track `activeIndex` (0–4).
+Derive each panel's visual state from `activeIndex` on every render.
+
+The bottom edge of the stacked cards must be visible at the bottom of
+the viewport as thin colored slivers — achieve this by applying the
+scale+y transforms from the BOTTOM of the panel:
+  transform-origin: center bottom on all panels
+This makes the stack peek out from the bottom like a deck of cards
+held in a hand, not from the top.
+
+=== KNOB NAV — LEFT SIDE, GHOST UNTIL HOVER ===
+The knob nav is position:fixed, left:0, top:50%, transform:translateY(-50%).
+z-index: 500.
+
+HIDE BEHAVIOUR:
+- Default state: the entire knob assembly is translateX(-100%) — fully off-screen left.
+- A 48px wide invisible hover trigger strip sits at left:0, top:0, height:100vh,
+  position:fixed, z-index:499, background:transparent.
+- When the user's mouse enters this strip (mouseenter on the strip),
+  the knob nav slides in: translateX(0), transition 0.4s cubic-bezier(0.34,1.2,0.64,1)
+- When mouse leaves BOTH the strip AND the knob nav (mouseleave on both,
+  check if relatedTarget is outside both), the knob slides back out:
+  translateX(-100%), transition 0.35s ease-in
+- On mobile: a small ☰ icon at left:12px top:50% taps to toggle the knob open/closed
+
+KNOB ASSEMBLY LAYOUT (from top to bottom, flex column, align center):
+  1. Section counter: "01 / 05" — Bebas Neue 10px ls 0.2em color var(--muted)
+  2. 16px gap
+  3. The dial (80×80px) — see DIAL spec below
+  4. 16px gap
+  5. Section pills (5 items) — see PILLS spec below
+  6. 20px gap
+  7. ☯ toggle button
+
+The whole assembly has padding: 20px 16px, background: rgba(bg, 0.85),
+backdrop-filter: blur(16px), border-right: 1px solid var(--border),
+border-radius: 0 12px 12px 0.
+
+DIAL SPEC:
+- 80×80px container, position relative
+- Outer SVG tick ring (80×80): 32 tick marks drawn at equal angular intervals
+  · 5 major ticks (evenly spaced, one per section): stroke rgba(fg,0.6), strokeWidth 1.5, length 7px inward
+  · 27 minor ticks: stroke rgba(fg,0.16), strokeWidth 1, length 3px inward
+  · Major tick for ACTIVE section: stroke var(--fg), strokeWidth 2 (highlight)
+- Inner knob (inset 12px from outer, so 56×56px): border-radius 50%
+  border: 1px solid var(--border), background var(--bg)
+  Has a single indicator nub: a 3×10px rounded rect at top-center
+  The whole inner knob rotates via CSS transform: rotate(Xdeg)
+  Angles: section 0 = -135deg, 1 = -67.5deg, 2 = 0deg, 3 = 67.5deg, 4 = 135deg
+  Rotation transition: 0.6s cubic-bezier(0.34,1.56,0.64,1)
+- Clicking the knob advances to next section (wraps around)
+- Mouse wheel on the knob: wheel up = prev, wheel down = next
+
+PILLS SPEC:
+- 5 pill labels, one per section: Hero · About · Projects · Experience · Contact
+- Font: Inter 9px, uppercase, letter-spacing 0.18em
+- Active: color var(--fg), font-weight 500
+- Inactive: color var(--muted)
+- Hover: color var(--fg)
+- Clicking a pill jumps directly to that section (triggers the leaf animation)
+- No borders on pills — plain text only
+
+=== HERO PANEL ===
+Full fixed panel. Background var(--bg).
+
+LAYER 1 — Marquee background (position absolute inset-0 z-0):
+- opacity 0.055 dark / 0.038 light
+- 4 rows, justify-content space-around
+- Each .mq-track: content duplicated 4 times, will-change:transform
+- Rows 1,3: translateX(0→-25%), 40s linear infinite
+- Rows 2,4: translateX(-25%→0), 34s linear infinite
+- Font: Bebas Neue clamp(2.4rem,4.5vw,4rem), padding 0 3.5rem per span
+- Alternate: italic "Welcome" · normal "வணக்கம்"
+
+LAYER 2 — Content (position relative z-1, left-aligned, pl clamp(120px,12vw,200px)):
+- "KAILASH MURALI T": Bebas Neue clamp(80px,12vw,160px), lh 0.88, ls 0.02em
+  Framer: y 60→0, opacity 0→1, delay 2.5s, duration 0.9s easeOut (time-based, NOT scroll)
+- Role tags row (mt 20px): "Developer" | "Quizzer" | "Sports Enthusiast"
+  Inter 12px uppercase ls 0.18em var(--muted)
+  Dividers: 1px × 14px vertical rgba(fg,0.22)
+  Framer: y 20→0, opacity 0→1, delay 2.8s, stagger 0.08s
+- Bottom-center: scroll cue replaced with "ROTATE KNOB" hint
+  Font: Inter 9px ls 0.25em uppercase var(--muted), opacity 0.6
+  A small ↺ icon before the text
+  Framer: opacity 0→0.6, delay 3.4s
+
+=== ABOUT PANEL ===
+Left-aligned layout. pl clamp(120px,12vw,200px). pr 80px.
+Two-column grid: left = image, right = text.
+Heading: "WHO I AM" Bebas Neue clamp(48px,7vw,96px) above the grid.
+
+IMAGE (left col):
+- Wrapper: position relative, padding-bottom 14px, padding-right 14px
+- img: 260×360px, object-fit cover, object-position top
+  clip-path: polygon(0 0, 100% 0, 96% 92%, 88% 100%, 0 100%)
+  filter grayscale(100%), hover grayscale(0%), transition 0.5s
+- Ghost border: position absolute inset-0,
+  border 1px solid var(--border), same clip-path,
+  transform translate(14px,14px), pointer-events none, z-index -1
+
+TEXT (right col):
+- Para, Inter 1rem lh 1.9 var(--muted), max-width 520px
+- "I'm Kailash Murali T — a Computer Science (AI & ML) student at VIT Chennai.
+  I work at the intersection of machine learning, systems design, and product thinking.
+  I've interned at Bray International and Ashok Leyland, led finance for large-scale fests,
+  and serve as Treasurer of the VITC Quiz Club. Outside code, I'm a passionate
+  sports enthusiast and quizzer."
+- Strong: Bray International · Ashok Leyland · VITC Quiz Club
+
+=== PROJECTS PANEL ===
+Heading: "WHAT I'VE BUILT"
+Scrollable INNER container only (overflow-y: auto, max-height: calc(100vh - 180px))
+The panel itself does NOT scroll — only the inner card grid does.
+Custom thin scrollbar: width 2px, thumb var(--border).
+
+5 cards in a grid: repeat(auto-fill, minmax(280px,1fr)) gap 18px
+
+Card 01 — Bray-PPE
+  Tags: Python · YOLOv8 · Azure · React
+  Desc: "Real-time YOLOv8 pipeline for PPE compliance detection. Azure-hosted, React dashboard."
+  Badge: "Private · Bray International" (no link)
+
+Card 02 — Bray-LTP
+  Tags: Python · LightGBM · Azure · React
+  Desc: "LightGBM supply chain lead time predictor on Azure with React operations dashboard."
+  Badge: "Private · Bray International" (no link)
+
+Card 03 — Kaavalan
+  Tags: Python · Computer Vision · Surveillance
+  Desc: "Smart surveillance with real-time object detection and intelligent alerting."
+  Link: https://github.com/Kailash-Murali/kaavalan
+
+Card 04 — Secure-Stego-UPI
+  Tags: PyTorch · DCGAN · Cryptography · Biometrics
+  Desc: "Coverless GAN steganography + biometric auth for tamper-evident UPI verification."
+  Link: https://github.com/V4run05/Secure-Stego-UPI
+  Collab badge: "w/ V4run05"
+
+Card 05 — Aram AI
+  Tags: Python · Agentic AI · LegalTech
+  Desc: "Explainable agentic AI for the Indian legal domain via conversational AI."
+  Link: https://github.com/Kailash-Murali/learn-law-2.0
+
+Card style: border 1px var(--border), br 12px, bg var(--card)
+Large number top-right Bebas Neue 2.8rem var(--border)
+Hover: translateY(-3px) border rgba(fg,0.4)
+
+=== EXPERIENCE PANEL ===
+Heading: "WHERE I'VE BEEN"
+Inner scrollable container (same pattern as Projects).
+Two-column timeline layout.
+
+LEFT — Work:
+1. May 2026–Jul 2026 · AI Solutions Engineer · Bray International Inc.
+   "YOLOv8 PPE pipeline + LightGBM LTP predictor on Azure with React dashboards."
+2. May 2025–Jun 2025 · Analytics Intern · Ashok Leyland, Chennai
+   "Fuzzy-match vehicle classification. AI governance per ISO 42001."
+
+RIGHT — Leadership:
+1. Feb 2026 · Finance Organiser · Vibrance 2026, VIT Chennai · "140+ events, team of 8."
+2. Oct 2025 · Finance Coordinator · TechnoVIT 2025 · "120+ club events."
+3. Jul 2025–Mar 2026 · Treasurer · VITC Quiz Club
+
+NO education. NO CGPA.
+
+RESUME DOWNLOAD BUTTON (centered below timelines):
+- "Download Résumé ↓" Bebas Neue 14px ls 0.15em
+- border 1px var(--border) · padding 14px 40px · br 2px
+- hover: bg var(--fg) color var(--bg)
+- href="./Resume.pdf" download="Kailash_Murali_Resume.pdf"
+- Framer whileHover scale 1.02
+
+=== CONTACT PANEL ===
+Heading: "SAY HELLO"
+Two columns: links left, form right.
+Links with inline SVGs: email · LinkedIn · GitHub
+Form: bottom-border inputs, inline validation, mailto fallback.
+
+=== CURSOR ===
+- 10px dot bg var(--fg) + 36px ring border 1px solid rgba(fg,0.4)
+- Both position fixed, pointer-events none, z-index 9999/9998
+- mousemove → set left/top
+- Hover interactive: ring → 54px, transition 0.18s
+- cursor: none on body
+
+=== KEYBOARD NAVIGATION ===
+- Arrow Down / Arrow Right → next panel (same as knob CW)
+- Arrow Up / Arrow Left → previous panel (same as knob CCW)
+- 1–5 number keys → jump to panel index
+
+=== CUSTOM SCROLLBAR (inner containers only) ===
+::-webkit-scrollbar { width: 2px }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px }
+::-webkit-scrollbar-track { background: transparent }
+
+=== DARK / LIGHT TOGGLE ===
+Only ☯ button in the knob assembly. Toggles class "light" on <html>.
+
+=== PANEL SECTION NUMBERS (top-right of each panel) ===
+Each panel has a fixed section indicator top-right (not inside the knob):
+"0X / 05" Bebas Neue 11px ls 0.2em var(--muted), position absolute top 32px right 48px.
+This is decorative only.
+
+=== README.md ===
+# Kailash Murali T — Portfolio
+Stack: Next.js 14 · TypeScript · Tailwind · Framer Motion
+Layout: Stacked fixed panels — no page scroll, knob-driven navigation
+Sections: Loader → Hero → About → Projects → Experience → Contact
+Projects: Bray-PPE (pvt) · Bray-LTP (pvt) · Kaavalan · Secure-Stego-UPI (w/ V4run05) · Aram AI
+Features: Card-stack leaf animation · Ghost knob nav · Custom cursor · ☯ toggle · Resume download
+Setup: npm install → npm run dev → localhost:3000
+Note: Add profile.jpg and Resume.pdf to /public before running.
+
+=== RULES ===
+- Zero color — black, white, opacities only
+- overflow:hidden on html AND body — no page scroll ever
+- ☯ only in the knob assembly
+- Hero animates on time delay only — never scroll triggered
+- Knob panel is invisible until mouse approaches left edge (48px trigger zone)
+- Stacked panels use transform-origin: center bottom
+- All panel transitions via Framer Motion animate prop, not CSS classes
+- No external icon/component libraries
+- No lorem ipsum
+- Output complete working Next.js project with all files

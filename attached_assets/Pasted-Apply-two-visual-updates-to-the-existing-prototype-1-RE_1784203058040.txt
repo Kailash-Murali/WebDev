@@ -1,0 +1,39 @@
+Apply two visual updates to the existing prototype:
+
+1. REPLACE THE KNOB POINTER WITH A PIXELATED MODERN CURSOR
+Remove the current faceted metallic blade pointer entirely from the 
+knob dome. In its place, render a small pixel-art style cursor icon 
+(blocky, hard-edged, low-resolution aesthetic — think retro-game/8-bit 
+arrow cursor, NOT a smooth vector arrow) positioned at the same 
+location the blade previously occupied, rotating together with the 
+dome as one rigid unit exactly as the blade did before.
+   - Build the cursor using stacked square/rectangle divs (or a small 
+     SVG with no anti-aliasing / crisp edges via image-rendering: 
+     pixelated) rather than curves or gradients, so it reads as 
+     distinctly pixelated against the glossy dome.
+   - Keep the dome, hub, and rotation mechanic (including the 
+     click-in press effect and glow trail from the prior fix) 
+     completely unchanged — only the pointer shape/style changes.
+   - The cursor should remain legible and proportionate at the 
+     dome's current size, not oversized or cropped.
+
+2. ENLARGE AND DENSIFY THE HERO MARQUEE TEXT
+On the hero panel, increase the font size of the scrolling 
+Welcome/Vanakkam-style marquee rows so the words read noticeably 
+bigger and bolder than the current baseline.
+   - Reduce the vertical gap between each marquee row so the rows sit 
+     closer together, creating a tighter, denser stacked-text look.
+   - Add more marquee rows (beyond the current count) to fill the 
+     hero section more fully top-to-bottom, cycling through all the 
+     bilingual word pairs (Welcome/Vanakkam, Tamilan/தமிழன், 
+     Kavigan/கலைஞன், Football/விளையாட்டு, Code/கணினி, Art/கலை, 
+     Anbu/அன்பு, Porupu/பொறுப்பு, Sirapu/சிறப்பு) distributed across 
+     the additional rows, alternating scroll direction (left/right) 
+     row by row as currently implemented.
+   - Ensure the increased text size and added rows do not overflow or 
+     get cut off awkwardly — adjust row height and line-height so the 
+     denser layout still fits cleanly within the hero viewport.
+
+Apply both changes together and confirm the knob's pixelated cursor 
+rotates correctly to each tick, and the hero marquee reads as a 
+denser, bigger, more immersive wall of bilingual text.

@@ -4,132 +4,117 @@ import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTheme } from '@/context/ThemeContext'
 
-const navLinks = ['About', 'Skills', 'Projects', 'Resume', 'Contact']
+const links = ['About', 'Projects', 'Experience', 'Contact']
 
 export default function Navbar() {
-  const [visible, setVisible] = useState(false)
+  const [show, setShow] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
-  const { toggleTheme } = useTheme()
+  const { theme, toggleTheme } = useTheme()
 
   useEffect(() => {
-    const onScroll = () => setVisible(window.scrollY > 60)
-    window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
+    const fn = () => setShow(window.scrollY > 60)
+    window.addEventListener('scroll', fn, { passive: true })
+    return () => window.removeEventListener('scroll', fn)
   }, [])
 
-  const scrollTo = (id: string) => {
+  const goTo = (id: string) => {
     setMenuOpen(false)
     document.getElementById(id.toLowerCase())?.scrollIntoView({ behavior: 'smooth' })
   }
 
+  const isLight = theme === 'light'
+  const bg = isLight ? 'rgba(240,240,236,0.92)' : 'rgba(10,10,10,0.82)'
+  const borderB = isLight ? '1px solid rgba(10,10,10,0.10)' : '1px solid var(--border)'
+  const textColor = isLight ? '#0a0a0a' : 'var(--fg)'
+  const mutedColor = isLight ? 'rgba(10,10,10,0.38)' : 'var(--muted)'
+  const ringBorder = isLight ? '1px solid rgba(10,10,10,0.25)' : '1px solid var(--border)'
+
   return (
     <AnimatePresence>
-      {visible && (
-        <motion.nav
-          key="navbar"
-          className="fixed top-0 inset-x-0 z-[100] flex items-center justify-between px-8 py-4"
-          style={{
-            backdropFilter: 'blur(14px)',
-            backgroundColor: 'rgba(10,10,10,0.8)',
-            borderBottom: '1px solid var(--border)',
-          }}
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -20 }}
-          transition={{ duration: 0.3 }}
-        >
-          {/* Logo */}
-          <span className="font-bebas text-[20px] select-none">
-            <span style={{ color: 'var(--fg)' }}>K</span>
-            <span style={{ color: 'var(--muted)' }}>M</span>
-          </span>
+      {show && (
+        <>
+          <motion.nav
+            key="nav"
+            className="fixed top-0 inset-x-0 z-[200] flex items-center justify-between px-8 py-4"
+            style={{ backdropFilter: 'blur(14px)', background: bg, borderBottom: borderB }}
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.3 }}
+          >
+            <span className="font-bebas text-[20px] select-none">
+              <span style={{ color: textColor }}>K</span>
+              <span style={{ color: mutedColor }}>M</span>
+            </span>
 
-          {/* Center links — desktop */}
-          <ul className="hidden md:flex items-center gap-8">
-            {navLinks.map(link => (
-              <li key={link}>
-                <button
-                  onClick={() => scrollTo(link)}
-                  className="text-[11px] uppercase tracking-[0.15em] transition-opacity hover:opacity-100"
-                  style={{ color: 'var(--muted)' }}
-                >
-                  {link}
+            <ul className="hidden md:flex items-center gap-8">
+              {links.map(l => (
+                <li key={l}>
+                  <button
+                    onClick={() => goTo(l)}
+                    className="text-[11px] uppercase tracking-[0.15em]"
+                    style={{ color: mutedColor }}
+                    onMouseEnter={e => (e.currentTarget.style.color = textColor)}
+                    onMouseLeave={e => (e.currentTarget.style.color = mutedColor)}
+                  >
+                    {l}
+                  </button>
+                </li>
+              ))}
+            </ul>
+
+            <div className="flex items-center gap-3">
+              <button
+                onClick={toggleTheme}
+                aria-label="Toggle theme"
+                className="w-9 h-9 rounded-full flex items-center justify-center"
+                style={{ border: ringBorder, color: textColor, fontSize: 18 }}
+              >
+                ☯
+              </button>
+              <button
+                onClick={() => setMenuOpen(o => !o)}
+                className="md:hidden flex flex-col gap-[5px] w-8 h-8 justify-center items-center"
+                aria-label="Menu"
+              >
+                {[
+                  menuOpen ? 'rotate(45deg) translate(3px,3px)' : '',
+                  '',
+                  menuOpen ? 'rotate(-45deg) translate(3px,-3px)' : '',
+                ].map((tf, i) => (
+                  <span
+                    key={i}
+                    className="block w-5 h-px"
+                    style={{
+                      background: textColor,
+                      transform: tf,
+                      opacity: i === 1 && menuOpen ? 0 : 1,
+                      transition: 'transform 0.2s, opacity 0.2s',
+                    }}
+                  />
+                ))}
+              </button>
+            </div>
+          </motion.nav>
+
+          {menuOpen && (
+            <motion.div
+              key="mobile-nav"
+              className="fixed top-[65px] inset-x-0 z-[199] md:hidden flex flex-col items-center gap-6 py-8"
+              style={{ backdropFilter: 'blur(14px)', background: bg, borderBottom: borderB }}
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.2 }}
+            >
+              {links.map(l => (
+                <button key={l} onClick={() => goTo(l)} className="text-[13px] uppercase tracking-[0.15em]" style={{ color: textColor }}>
+                  {l}
                 </button>
-              </li>
-            ))}
-          </ul>
-
-          {/* Right: toggle + hamburger */}
-          <div className="flex items-center gap-4">
-            {/* Theme toggle */}
-            <button
-              onClick={toggleTheme}
-              aria-label="Toggle theme"
-              className="w-8 h-8 rounded-full flex items-center justify-center text-[20px]"
-              style={{ border: '1px solid var(--border)', color: 'var(--fg)' }}
-            >
-              ☯
-            </button>
-
-            {/* Hamburger — mobile */}
-            <button
-              onClick={() => setMenuOpen(o => !o)}
-              className="md:hidden flex flex-col gap-[5px] justify-center items-center w-8 h-8"
-              aria-label="Menu"
-            >
-              <span
-                className="block w-5 h-px transition-all"
-                style={{
-                  backgroundColor: 'var(--fg)',
-                  transform: menuOpen ? 'rotate(45deg) translate(3px, 3px)' : '',
-                }}
-              />
-              <span
-                className="block w-5 h-px"
-                style={{
-                  backgroundColor: 'var(--fg)',
-                  opacity: menuOpen ? 0 : 1,
-                  transition: 'opacity 0.2s',
-                }}
-              />
-              <span
-                className="block w-5 h-px transition-all"
-                style={{
-                  backgroundColor: 'var(--fg)',
-                  transform: menuOpen ? 'rotate(-45deg) translate(3px, -3px)' : '',
-                }}
-              />
-            </button>
-          </div>
-        </motion.nav>
-      )}
-
-      {/* Mobile menu */}
-      {visible && menuOpen && (
-        <motion.div
-          key="mobile-menu"
-          className="fixed top-[65px] inset-x-0 z-[99] md:hidden flex flex-col items-center gap-6 py-8"
-          style={{
-            backdropFilter: 'blur(14px)',
-            backgroundColor: 'rgba(10,10,10,0.95)',
-            borderBottom: '1px solid var(--border)',
-          }}
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -10 }}
-          transition={{ duration: 0.2 }}
-        >
-          {navLinks.map(link => (
-            <button
-              key={link}
-              onClick={() => scrollTo(link)}
-              className="text-[13px] uppercase tracking-[0.15em]"
-              style={{ color: 'var(--fg)' }}
-            >
-              {link}
-            </button>
-          ))}
-        </motion.div>
+              ))}
+            </motion.div>
+          )}
+        </>
       )}
     </AnimatePresence>
   )

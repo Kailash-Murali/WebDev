@@ -1,80 +1,107 @@
 'use client'
 
-import { motion, useInView } from 'framer-motion'
-import { useRef } from 'react'
-import Image from 'next/image'
-
-const fadeUp = (delay = 0) => ({
-  initial: { opacity: 0, y: 40 },
-  whileInView: { opacity: 1, y: 0 },
-  viewport: { once: true, margin: '-80px' },
-  transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1], delay },
-})
-
 export default function About() {
   return (
-    <section id="about" className="px-8 md:px-16 lg:px-24 py-24 md:py-36">
-      <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-16 items-center">
-        {/* Left: heading */}
-        <motion.div {...fadeUp(0)}>
-          <h2
-            className="font-bebas leading-none"
-            style={{ fontSize: 'clamp(48px, 7vw, 96px)', color: 'var(--fg)' }}
-          >
-            WHO I AM
-          </h2>
-        </motion.div>
+    <section
+      style={{
+        width: '100%', height: '100%',
+        position: 'relative',
+        background: 'var(--bg)',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        paddingLeft: 'clamp(120px, 12vw, 200px)',
+        paddingRight: 80,
+        overflow: 'hidden',
+      }}
+    >
+      {/* Section number */}
+      <span
+        className="font-bebas"
+        style={{
+          position: 'absolute', top: 32, right: 48,
+          fontSize: 11, letterSpacing: '0.2em',
+          color: 'var(--muted)', userSelect: 'none', pointerEvents: 'none',
+        }}
+      >
+        02 / 05
+      </span>
 
-        {/* Right: image + text */}
-        <div className="flex flex-col gap-8">
-          {/* Image with clip-path and ghost border */}
-          <motion.div className="relative self-start" {...fadeUp(0.1)}>
-            {/* Ghost border */}
-            <div
-              className="absolute"
-              style={{
-                inset: 0,
-                border: '1px solid var(--border)',
-                clipPath: 'polygon(0 0, 100% 0, 100% 85%, 85% 100%, 0 100%)',
-                transform: 'translate(16px, 16px)',
-              }}
-            />
-            {/* Image */}
-            <div
-              className="relative overflow-hidden group"
-              style={{
-                clipPath: 'polygon(0 0, 100% 0, 100% 85%, 85% 100%, 0 100%)',
-                width: 260,
-              }}
-            >
-              <Image
-                src="/profile.jpg"
-                alt="Kailash Murali T"
-                width={260}
-                height={320}
-                style={{
-                  filter: 'grayscale(100%)',
-                  transition: 'filter 0.4s ease',
-                  display: 'block',
-                  width: '100%',
-                  height: 'auto',
-                }}
-                onMouseEnter={e => (e.currentTarget.style.filter = 'grayscale(0%)')}
-                onMouseLeave={e => (e.currentTarget.style.filter = 'grayscale(100%)')}
-              />
-            </div>
-          </motion.div>
+      {/* Heading */}
+      <h2
+        className="font-bebas"
+        style={{
+          fontSize: 'clamp(48px, 7vw, 96px)',
+          color: 'var(--fg)',
+          lineHeight: 1,
+          marginBottom: 48,
+        }}
+      >
+        WHO I AM
+      </h2>
 
-          {/* Text */}
-          <motion.p
-            className="leading-relaxed"
-            style={{ color: 'var(--muted)', fontSize: 15, maxWidth: 480 }}
-            {...fadeUp(0.2)}
+      {/* Two-column grid */}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'auto 1fr',
+          gap: 56,
+          alignItems: 'start',
+        }}
+      >
+        {/* Left — image */}
+        <div style={{ position: 'relative', paddingBottom: 14, paddingRight: 14 }}>
+          {/* Ghost border offset */}
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              border: '1px solid var(--border)',
+              clipPath: 'polygon(0 0, 100% 0, 96% 92%, 88% 100%, 0 100%)',
+              transform: 'translate(14px, 14px)',
+              pointerEvents: 'none',
+              zIndex: -1,
+            }}
+          />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="./profile.jpg"
+            alt="Kailash Murali T"
+            style={{
+              width: 260, height: 360,
+              objectFit: 'cover',
+              objectPosition: 'top',
+              clipPath: 'polygon(0 0, 100% 0, 96% 92%, 88% 100%, 0 100%)',
+              filter: 'grayscale(100%)',
+              transition: 'filter 0.5s ease',
+              display: 'block',
+            }}
+            onMouseEnter={e => (e.currentTarget.style.filter = 'grayscale(0%)')}
+            onMouseLeave={e => (e.currentTarget.style.filter = 'grayscale(100%)')}
+          />
+        </div>
+
+        {/* Right — text */}
+        <div>
+          <p
+            style={{
+              fontFamily: 'var(--font-inter)',
+              fontSize: '1rem',
+              lineHeight: 1.9,
+              color: 'var(--muted)',
+              maxWidth: 520,
+            }}
           >
-            I&apos;m Kailash Murali T, an avid programmer and student at VIT Chennai.
-            Stack: Python, Java, C/C++, HTML, CSS &amp; JS. Passionate about quizzing
-            with multiple accolades.
-          </motion.p>
+            I&apos;m Kailash Murali T — a Computer Science (AI &amp; ML) student at VIT Chennai.
+            I work at the intersection of machine learning, systems design, and product thinking.
+            I&apos;ve interned at{' '}
+            <strong style={{ color: 'var(--fg)', fontWeight: 600 }}>Bray International</strong>
+            {' '}and{' '}
+            <strong style={{ color: 'var(--fg)', fontWeight: 600 }}>Ashok Leyland</strong>,
+            led finance for large-scale fests, and serve as Treasurer of the{' '}
+            <strong style={{ color: 'var(--fg)', fontWeight: 600 }}>VITC Quiz Club</strong>.
+            Outside code, I&apos;m a passionate sports enthusiast and quizzer.
+          </p>
         </div>
       </div>
     </section>

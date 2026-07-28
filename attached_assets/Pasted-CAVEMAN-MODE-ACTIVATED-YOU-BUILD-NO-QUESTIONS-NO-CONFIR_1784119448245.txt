@@ -1,0 +1,242 @@
+CAVEMAN MODE ACTIVATED. YOU BUILD. NO QUESTIONS. NO CONFIRMATIONS. NO SUMMARIES.
+
+=== RULES ===
+- You are a senior engineer. Act like one.
+- Read the full spec below. Build it. All of it. Now.
+- If a file exists, overwrite it. If it does not, create it.
+- Do not ask "should I proceed". Do not say "I'll now create". Just create.
+- Do not explain what you are doing mid-build. Build first. Say done at the end.
+- If you hit an ambiguity, pick the better engineering choice and move on.
+- Zero placeholder comments like "// add logic here". Implement the logic.
+- Every component must be functional, styled, and wired up on first write.
+- Do not stub anything. Do not use TODO. Do not leave empty functions.
+
+=== STACK ===
+Next.js 14 App Router · TypeScript · Tailwind CSS · Framer Motion
+next/font for Bebas Neue + Inter · No shadcn · No MUI · No icon packs
+Inline SVGs only · No lorem ipsum anywhere
+
+=== FILE STRUCTURE (create all of these) ===
+app/
+  layout.tsx          ← root layout, font injection, ThemeProvider, cursor
+  page.tsx            ← full page: Loader + Hero + About + Projects + Experience + Contact
+  globals.css         ← CSS vars, body reset, cursor none, scrollbar, marquee keyframes
+components/
+  Loader.tsx          ← KM counter loader, AnimatePresence exit slide up
+  Navbar.tsx          ← fixed, scroll-triggered, KM logo, nav links, ☯ toggle
+  Hero.tsx            ← marquee bg + name + roles, ALL time-based Framer Motion
+  About.tsx           ← two-col, image with clip-path frame + ghost border
+  Projects.tsx        ← 5-card grid, private badge on Bray cards
+  Experience.tsx      ← two-col timeline, download resume button
+  Contact.tsx         ← two-col, inline SVGs, form with validation
+  Footer.tsx          ← one line copyright
+  Cursor.tsx          ← dot + ring, expands on hover
+context/
+  ThemeContext.tsx    ← creates ThemeContext, toggleTheme, applies "light" class to <html>
+public/
+  Resume.pdf          ← (user will add this manually — create a placeholder note in README)
+  profile.jpg         ← (user will add this manually — create a placeholder note in README)
+
+=== DESIGN TOKENS (globals.css) ===
+:root {
+  --bg: #0a0a0a;
+  --fg: #f0f0ec;
+  --muted: rgba(240,240,236,0.38);
+  --border: rgba(240,240,236,0.11);
+  --card: rgba(240,240,236,0.03);
+}
+html.light {
+  --bg: #f0f0ec;
+  --fg: #0a0a0a;
+  --muted: rgba(10,10,10,0.38);
+  --border: rgba(10,10,10,0.11);
+  --card: rgba(10,10,10,0.03);
+}
+* { transition: background 0.4s ease, color 0.4s ease, border-color 0.4s ease; }
+body { background: var(--bg); color: var(--fg); cursor: none; overflow-x: hidden; }
+
+=== LOADER (Loader.tsx) ===
+- Full viewport fixed overlay, bg var(--bg), z-index 1000
+- Center column flex: "KM" Bebas Neue 120px · 1px bar width 0→100% over 1.8s · counter 000→100
+- After 2200ms: AnimatePresence exit → translateY(-100%), duration 0.6s ease-in-out
+- While active: document.body.style.overflow = 'hidden'
+- On exit complete: restore overflow
+
+=== NAVBAR (Navbar.tsx) ===
+- Fixed top, full width, hidden until scrollY > 60 (Framer Motion opacity+y)
+- DARK: bg rgba(10,10,10,0.82) blur(14px)
+- LIGHT: bg rgba(240,240,236,0.92) blur(14px) · ALL text explicitly color: #0a0a0a
+- Left: "KM" Bebas Neue 20px — K var(--fg), M var(--muted)
+- Center: About · Projects · Experience · Contact — Inter 11px uppercase tracked
+- Right: ☯ button, 36px circle, border 1px solid var(--border), onClick toggleTheme
+- ONLY ☯ on the entire page
+
+=== HERO (Hero.tsx) ===
+ALL animations are time-based Framer Motion `animate` + `transition.delay`. NO useInView here.
+
+MARQUEE BG:
+- position absolute inset-0 z-0, opacity 0.055 dark / 0.04 light
+- 4 rows, justify-content space-around, overflow hidden
+- Each row: .mq-track with content duplicated 4x
+  Rows 1,3: animate translateX(0 → -25%), duration 40s, linear, infinite
+  Rows 2,4: reverse direction, duration 34s, linear, infinite
+- will-change: transform on each track
+- Font: Bebas Neue clamp(2.4rem, 4.5vw, 4rem)
+- Spans alternate: italic "Welcome" · normal "வணக்கம்"
+- Marquee fades in: opacity 0 → 0.055, Framer delay 2.3s
+
+FOREGROUND (left-aligned, padding-left clamp(40px,6vw,96px)):
+- "KAILASH MURALI T": Bebas Neue clamp(80px,12vw,160px) lh 0.88 ls 0.02em
+  Framer: y 60→0, opacity 0→1, delay 2.5s, duration 0.9s easeOut
+- Role tags row (margin-top 20px):
+  "Developer" | "Quizzer" | "Sports Enthusiast"
+  Inter 12px uppercase ls 0.18em var(--muted)
+  Separated by 1px vertical divider rgba(fg,0.25), height 14px
+  Framer: y 20→0, opacity 0→1, delay 2.8s, stagger 0.08s each tag
+- Scroll cue: absolute bottom-center, 1px line gradient to transparent, breathing keyframe anim
+  Framer: opacity 0→1, delay 3.4s
+
+=== ABOUT (About.tsx) ===
+Two-column grid, left = image, right = text. useInView scroll reveal.
+
+IMAGE:
+- Wrapper: position relative, padding-bottom 14px, padding-right 14px
+- <img>: width 300px height 400px object-fit cover object-position top
+  clip-path: polygon(0 0, 100% 0, 96% 92%, 88% 100%, 0 100%)
+  filter grayscale(100%), hover grayscale(0%), transition 0.5s
+- Ghost border: position absolute inset-0, border 1px solid var(--border),
+  same clip-path, transform translate(14px, 14px), pointer-events none, z-index -1
+- src="./profile.jpg" alt="Kailash Murali T"
+
+TEXT:
+- "WHO I AM" Bebas Neue clamp(48px,7vw,96px)
+- Para: "I'm Kailash Murali T — a Computer Science (AI & ML) student at VIT Chennai.
+  I work at the intersection of machine learning, systems design, and product thinking.
+  I've interned at <strong>Bray International</strong> and <strong>Ashok Leyland</strong>,
+  led finance for large-scale fests, and serve as Treasurer of the
+  <strong>VITC Quiz Club</strong>. Outside code, I'm a passionate sports enthusiast and quizzer."
+- Inter 1rem lh 1.9 var(--muted)
+
+=== PROJECTS (Projects.tsx) ===
+5 cards. Grid repeat(auto-fill, minmax(320px,1fr)) gap 24px. useInView stagger 0.1s.
+
+Card 01 — Bray-PPE
+  Tags: Python · YOLOv8 · Azure · React
+  Desc: "Real-time YOLOv8 pipeline for PPE compliance detection at Bray International.
+  Azure-hosted backend with React dashboard for low-latency safety violation alerts."
+  NO link. Badge: "Private · Bray International"
+
+Card 02 — Bray-LTP
+  Tags: Python · LightGBM · Azure · React
+  Desc: "Supply chain lead time predictor using LightGBM on historical buyer-seller
+  transaction dyads. Azure-deployed with custom React operations dashboard."
+  NO link. Badge: "Private · Bray International"
+
+Card 03 — Kaavalan
+  Tags: Python · Computer Vision · Surveillance
+  Desc: "Smart surveillance system with real-time object detection and intelligent alerting."
+  Link: https://github.com/Kailash-Murali/kaavalan → "View Repo →"
+
+Card 04 — Secure-Stego-UPI
+  Tags: PyTorch · DCGAN · Cryptography · Biometrics
+  Desc: "Coverless GAN steganography fused with multi-factor biometric authentication
+  for tamper-evident UPI transaction verification."
+  Link: https://github.com/V4run05/Secure-Stego-UPI → "View Repo →"
+  Collab badge: "w/ V4run05" — small bordered pill bottom of card
+
+Card 05 — Aram AI
+  Tags: Python · Agentic AI · LegalTech
+  Desc: "Explainable agentic AI for the Indian legal domain. Making law accessible
+  through conversational AI — continuation of the learn-law initiative."
+  Link: https://github.com/Kailash-Murali/learn-law-2.0 → "View Repo →"
+
+All cards: border var(--border) · br 12px · bg var(--card)
+Large number top-right Bebas Neue 3rem var(--border)
+Hover: translateY(-4px) · border rgba(fg,0.4)
+
+=== EXPERIENCE (Experience.tsx) ===
+Two-column on desktop, stacked on mobile. useInView per entry.
+Odd entries: x -40→0. Even entries: x 40→0. Both opacity 0→1.
+
+LEFT — Work:
+1. May 2026–Jul 2026 · AI Solutions Engineer · Bray International Inc.
+   "YOLOv8 PPE pipeline and LightGBM lead time predictor, both on Azure with React dashboards."
+2. May 2025–Jun 2025 · Analytics Intern · Ashok Leyland, Chennai
+   "Vehicle classification with fuzzy matching. AI governance policies per ISO 42001."
+
+RIGHT — Leadership:
+1. Feb 2026 · Finance Organiser · Vibrance 2026, VIT Chennai
+   "Team of 8. Finances for 140+ events."
+2. Oct 2025 · Finance Coordinator · TechnoVIT 2025, VIT Chennai
+   "Budget tracking for 120+ club events."
+3. Jul 2025–Mar 2026 · Treasurer · VITC Quiz Club, Chennai
+
+NO education. NO CGPA. NO schooling. Do not add them.
+
+RESUME BUTTON (centered below both columns):
+- "Download Résumé ↓" · Bebas Neue 15px · ls 0.15em
+- border 1px solid var(--border) · padding 16px 48px · br 2px
+- Hover: bg var(--fg) color var(--bg)
+- href="./Resume.pdf" download="Kailash_Murali_Resume.pdf"
+- Framer whileHover scale 1.02
+
+=== CONTACT (Contact.tsx) ===
+Two-column: links left, form right.
+Links (with inline SVGs — NO icon library):
+  kailashmurali17@gmail.com
+  https://www.linkedin.com/in/kailash-murali-t-66721b28b/
+  https://github.com/Kailash-Murali
+Form: name · email · message — bottom-border inputs only
+Validation: inline red text, no popups
+Submit: mailto:kailashmurali17@gmail.com fallback
+
+=== CURSOR (Cursor.tsx) ===
+- 10px filled dot bg var(--fg) + 36px ring border 1px solid rgba(fg,0.45)
+- Both fixed, pointer-events none, z-index 9999/9998
+- mousemove listener sets left/top via useEffect
+- On hover of a,button,.proj-card,.pill: ring → 56px w/h, transition 0.18s
+- cursor: none on body in globals.css
+
+=== FOOTER (Footer.tsx) ===
+"© 2026 Kailash Murali T  ·  Made with intention"
+11px · var(--muted) · text-center · border-top 1px solid var(--border) · py-8
+
+=== README.md (overwrite) ===
+# Kailash Murali T — Portfolio
+
+Built with Next.js 14 · TypeScript · Tailwind CSS · Framer Motion
+
+## Sections
+- Loader (KM counter, slides up)
+- Hero (auto cinematic entrance, marquee bg)
+- About
+- Projects: Bray-PPE (pvt) · Bray-LTP (pvt) · Kaavalan · Secure-Stego-UPI (w/ V4run05) · Aram AI
+- Experience (work + leadership + resume download)
+- Contact
+
+## Setup
+1. Add `profile.jpg` to `/public`
+2. Add `Resume.pdf` to `/public`
+3. `npm install`
+4. `npm run dev`
+5. Visit http://localhost:3000
+
+## Notes
+- No education/CGPA displayed
+- Bray projects are private — no repo links shown
+- ☯ is the only dark/light toggle (navbar only)
+- Hero animates on time delay, not scroll
+
+=== FINAL CHECK BEFORE DONE ===
+Before declaring done, verify:
+[ ] Loader exits and hero animates without any scroll
+[ ] Light mode navbar text is fully visible (#0a0a0a)
+[ ] Bray-PPE and Bray-LTP have NO repo links
+[ ] No education section exists anywhere
+[ ] ☯ appears only in the navbar
+[ ] All 5 project cards render with correct data
+[ ] Resume button downloads the PDF
+[ ] Custom cursor works on mouse move
+[ ] Mobile layout does not break
+
+NOW BUILD.

@@ -1,0 +1,1 @@
+- [Portfolio architecture](portfolio-arch.md) — stacked fixed panels + ghost knob nav; no scroll ever; overflow:hidden on html+body
