@@ -54,16 +54,32 @@ export default function Page() {
 
   useEffect(() => {
     let lastScroll = 0
-    
+    let touchStartY = 0
+
     const onWheel = (e: WheelEvent) => {
       const now = Date.now()
       // Throttle scrolling to avoid jumping multiple sections from a single trackpad swipe
-      if (now - lastScroll < 800) return 
-      
+      if (now - lastScroll < 800) return
+
       if (Math.abs(e.deltaY) > 20) {
         lastScroll = now
         if (e.deltaY > 0) setActiveIndex(i => Math.min(4, i + 1))
         else if (e.deltaY < 0) setActiveIndex(i => Math.max(0, i - 1))
+      }
+    }
+
+    const onTouchStart = (e: TouchEvent) => {
+      touchStartY = e.touches[0].clientY
+    }
+
+    const onTouchEnd = (e: TouchEvent) => {
+      const now = Date.now()
+      if (now - lastScroll < 800) return
+      const delta = touchStartY - e.changedTouches[0].clientY
+      if (Math.abs(delta) > 40) {
+        lastScroll = now
+        if (delta > 0) setActiveIndex(i => Math.min(4, i + 1))
+        else setActiveIndex(i => Math.max(0, i - 1))
       }
     }
 
@@ -75,11 +91,16 @@ export default function Page() {
       else if (['1', '2', '3', '4', '5'].includes(e.key))
         setActiveIndex(Number(e.key) - 1)
     }
+
     window.addEventListener('keydown', onKey)
     window.addEventListener('wheel', onWheel, { passive: true })
+    window.addEventListener('touchstart', onTouchStart, { passive: true })
+    window.addEventListener('touchend', onTouchEnd, { passive: true })
     return () => {
       window.removeEventListener('keydown', onKey)
       window.removeEventListener('wheel', onWheel)
+      window.removeEventListener('touchstart', onTouchStart)
+      window.removeEventListener('touchend', onTouchEnd)
     }
   }, [])
 

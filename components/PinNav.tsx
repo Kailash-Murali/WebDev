@@ -33,9 +33,12 @@ export default function PinNav({ activeIndex, goTo }: Props) {
 
   return (
     <>
-      {/* Tooltip — absolute, appears to the left of the nav */}
+      {/* ── Desktop tick nav ───────────────────────────────────── */}
+
+      {/* Tooltip — appears to the left of the nav */}
       {showTooltip !== null && (
         <div
+          className="pin-nav-desktop"
           style={{
             position: 'fixed',
             right: 40,
@@ -45,7 +48,6 @@ export default function PinNav({ activeIndex, goTo }: Props) {
             pointerEvents: 'none',
           }}
         >
-          {/* Compute vertical offset for the hovered major tick */}
           {(() => {
             const tickHeight = 10   // px per tick slot (line + gap)
             const totalTicks = TICKS.length
@@ -78,13 +80,13 @@ export default function PinNav({ activeIndex, goTo }: Props) {
 
       {/* Tick column */}
       <div
+        className="pin-nav-desktop"
         style={{
           position: 'fixed',
           right: 16,
           top: '50%',
           transform: 'translateY(-50%)',
           zIndex: 500,
-          display: 'flex',
           flexDirection: 'column',
           alignItems: 'flex-end',
           gap: 6,
@@ -189,6 +191,70 @@ export default function PinNav({ activeIndex, goTo }: Props) {
           }}
         >
           {theme === 'dark' ? '☯' : '☯'}
+        </div>
+      </div>
+
+      {/* ── Mobile bottom dot nav ──────────────────────────────── */}
+      <div
+        className="pin-nav-mobile"
+        style={{
+          position: 'fixed',
+          bottom: 20,
+          left: '50%',
+          transform: 'translateX(-50%)',
+          zIndex: 500,
+          alignItems: 'center',
+          gap: 10,
+          padding: '8px 16px',
+          borderRadius: 99,
+          background: 'var(--knob-bg)',
+          border: '1px solid var(--border)',
+          backdropFilter: 'blur(12px)',
+        }}
+      >
+        {SECTIONS.map((name, si) => {
+          const isActive = si === activeIndex
+          return (
+            <button
+              key={si}
+              aria-label={`Go to ${name}`}
+              aria-pressed={isActive}
+              onClick={() => goTo(si)}
+              style={{
+                width: isActive ? 20 : 6,
+                height: 6,
+                borderRadius: 3,
+                background: 'var(--fg)',
+                opacity: isActive ? 1 : 0.3,
+                border: 'none',
+                padding: 0,
+                cursor: 'pointer',
+                transition: 'width 0.25s ease, opacity 0.25s ease',
+                outline: 'none',
+              }}
+            />
+          )
+        })}
+
+        {/* Theme toggle — mobile */}
+        <div
+          role="button"
+          aria-label="Toggle theme"
+          tabIndex={0}
+          onClick={toggleTheme}
+          onKeyDown={e => {
+            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleTheme() }
+          }}
+          style={{
+            marginLeft: 6,
+            fontSize: 18,
+            lineHeight: 1,
+            cursor: 'pointer',
+            opacity: 0.6,
+            userSelect: 'none',
+          }}
+        >
+          ☯
         </div>
       </div>
     </>

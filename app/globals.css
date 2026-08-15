@@ -13,6 +13,7 @@
   --tick-minor: rgba(240,240,236,0.16);
   --cursor-ring: rgba(240,240,236,0.4);
   --knob-bg: rgba(10,10,10,0.85);
+  --pad-x: clamp(20px, 8vw, 160px);
 }
 
 html.light {
@@ -69,8 +70,87 @@ body {
   to   { opacity: 0; }
 }
 
-/* Mobile knob toggle — hidden on desktop */
+/* ── Responsive layout utilities ─────────────────────────────── */
+
+/* Section horizontal padding */
+.section-pad {
+  padding: 48px var(--pad-x) 48px;
+}
+
+/* 2-col grid used by Experience & Contact */
+.grid-2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+}
+
+/* About image + text grid */
+.about-grid {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 56px;
+  align-items: start;
+}
+
+/* Desktop tick nav */
+.pin-nav-desktop { display: flex; }
+/* Mobile dot nav */
+.pin-nav-mobile  { display: none; }
+
+/* Section counter — hidden on small screens */
+.section-num {
+  position: absolute;
+  top: 32px;
+  right: 48px;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  color: var(--muted);
+  user-select: none;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Mobile knob toggle */
 .knob-mobile-toggle { display: none; }
+
+/* ── Mobile breakpoint (≤768px) ─────────────────────────────── */
 @media (max-width: 768px) {
+  :root {
+    --pad-x: clamp(16px, 5vw, 48px);
+  }
+
+  body {
+    cursor: auto; /* restore native cursor on touch devices */
+  }
+
+  .section-num {
+    display: none;
+  }
+
+  .grid-2col {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+
+  .about-grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .pin-nav-desktop { display: none; }
+  .pin-nav-mobile  { display: flex !important; }
+
   .knob-mobile-toggle { display: flex !important; }
+
+  /* Tighten inner scroll containers on mobile */
+  .section-pad {
+    padding: 32px var(--pad-x) 32px;
+  }
+}
+
+/* ── Small mobile (≤480px) ───────────────────────────────────── */
+@media (max-width: 480px) {
+  :root {
+    --pad-x: 16px;
+  }
 }

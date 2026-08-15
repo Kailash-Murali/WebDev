@@ -57,14 +57,7 @@ export default function Hero({ loaded }: { loaded: boolean }) {
       }}
     >
       {/* Section number */}
-      <span
-        className="font-bebas"
-        style={{
-          position: 'absolute', top: 32, right: 48,
-          fontSize: 11, letterSpacing: '0.2em',
-          color: 'var(--muted)', userSelect: 'none', pointerEvents: 'none',
-        }}
-      >
+      <span className="font-bebas section-num">
         01 / 05
       </span>
 
@@ -93,13 +86,13 @@ export default function Hero({ loaded }: { loaded: boolean }) {
       </motion.div>
 
       {/* Foreground content */}
-      <div style={{ position: 'relative', zIndex: 1, paddingLeft: 'clamp(120px, 12vw, 200px)' }}>
+      <div style={{ position: 'relative', zIndex: 1, paddingLeft: 'var(--pad-x)', paddingRight: 'var(--pad-x)' }}>
         {loaded && (
           <>
             <motion.h1
               className="font-bebas"
               style={{
-                fontSize: 'clamp(80px, 12vw, 160px)',
+                fontSize: 'clamp(44px, 11vw, 160px)',
                 lineHeight: 0.88,
                 letterSpacing: '0.02em',
                 color: 'var(--fg)',
@@ -111,7 +104,7 @@ export default function Hero({ loaded }: { loaded: boolean }) {
               KAILASH MURALI T
             </motion.h1>
 
-            <div style={{ display: 'flex', alignItems: 'center', marginTop: 20 }}>
+            <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '8px 0', marginTop: 20 }}>
               {roles.map((role, i) => (
                 <motion.div
                   key={role}
